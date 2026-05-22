@@ -45,24 +45,66 @@
   .header-title { color: var(--text); }
   .app { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
-  /* Header */
+  /* Hero card */
   .header {
+    background: linear-gradient(135deg, #EC691A 0%, #c5560c 100%);
+    border-radius: 12px;
+    padding: 34px 36px;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(236, 105, 26, 0.2), 0 2px 8px rgba(0,0,0,0.25);
   }
-  .header-title { font-size: 22px; font-weight: 600; }
-  .header-sub { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+  .header::before {
+    content: '';
+    position: absolute;
+    right: -120px;
+    top: -120px;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    left: -80px;
+    bottom: -100px;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(0,0,0,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header > * { position: relative; z-index: 1; }
+  .header-title {
+    font-size: 30px;
+    color: #ffffff;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .header-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.88);
+    margin-top: 0;
+    max-width: 640px;
+    line-height: 1.5;
+  }
   .demo-badge {
-    background: var(--accent-dim);
-    color: var(--accent);
-    padding: 3px 8px;
+    background: rgba(255,255,255,0.14);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.32);
+    padding: 5px 11px;
     border-radius: 4px;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
   }
 
   /* Stats */
