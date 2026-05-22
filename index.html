@@ -211,20 +211,22 @@
   .bug-meta strong { color: var(--text-mid); font-weight: 500; }
 
   .badge {
-    padding: 3px 0 3px 14px;
+    padding: 4px 11px 4px 22px;
+    border-radius: 14px;
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     white-space: nowrap;
-    color: var(--text-dim);
-    background: transparent;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-mid);
     position: relative;
   }
   .badge::before {
     content: '';
     position: absolute;
-    left: 0;
+    left: 9px;
     top: 50%;
     transform: translateY(-50%);
     width: 7px;
@@ -232,10 +234,29 @@
     border-radius: 50%;
     background: var(--text-dim);
   }
-  .badge-active::before { background: var(--accent); }
-  .badge-investigating::before { background: var(--accent); }
-  .badge-workaround::before { background: #6f6f6f; }
-  .badge-fixed::before { background: #4a9d6a; opacity: 0.55; }
+  .badge-active,
+  .badge-investigating {
+    background: rgba(236, 105, 26, 0.1);
+    border-color: rgba(236, 105, 26, 0.32);
+    color: #f3a070;
+  }
+  .badge-active::before,
+  .badge-investigating::before {
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(236, 105, 26, 0.55);
+  }
+  .badge-workaround {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.14);
+    color: #c8c8c8;
+  }
+  .badge-workaround::before { background: #a8a8a8; }
+  .badge-fixed {
+    background: rgba(74, 157, 106, 0.08);
+    border-color: rgba(74, 157, 106, 0.28);
+    color: #7fb892;
+  }
+  .badge-fixed::before { background: #4a9d6a; }
 
   .chevron {
     width: 16px; height: 16px;
@@ -285,9 +306,9 @@
     margin-top: 6px;
   }
   .workaround {
-    background: var(--panel-3);
-    border-left: 2px solid var(--accent);
-    padding: 10px 14px;
+    background: rgba(236, 105, 26, 0.06);
+    border-left: 3px solid var(--accent);
+    padding: 11px 14px;
     font-size: 12px;
     line-height: 1.55;
     color: var(--text-mid);
@@ -431,7 +452,7 @@
   <div class="filters">
     <input type="text" class="search-input" placeholder="Search by ID, symptom, error code..." id="search">
     <div class="chip active" data-filter="all">All</div>
-    <div class="chip" data-filter="active">Active</div>
+    <div class="chip" data-filter="active">Investigating</div>
     <div class="chip" data-filter="workaround">Has workaround</div>
     <div class="chip" data-filter="fixed">Fixed</div>
     <div class="chip" data-filter="tps">TPS</div>
@@ -567,7 +588,7 @@ const bugs = [
     id: 'ADO-7705',
     title: 'No tracking on Short Wedges/Chip shots in VG outdoors',
     status: 'active',
-    statusLabel: 'Active',
+    statusLabel: 'Investigating',
     category: ['vg', 'tm4'],
     age: '12 days old',
     updated: 'R&D updated 6 days ago',
