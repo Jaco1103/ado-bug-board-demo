@@ -271,21 +271,14 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: var(--success-dim);
-    border: 1px solid var(--success);
-    color: var(--success);
+    background: var(--info-dim);
+    border: 1px dashed var(--info);
+    color: var(--info);
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 11px;
     font-weight: 500;
   }
-  .notify-status.pending {
-    background: var(--warn-dim);
-    border-color: var(--warn);
-    color: var(--warn);
-    cursor: pointer;
-  }
-  .notify-status.pending:hover { background: #4a3a1a; }
 
   .action-bar {
     display: flex;
@@ -342,7 +335,7 @@
   <header class="header">
     <div>
       <div class="header-title">Known Bug Board · T2 Support</div>
-      <div class="header-sub">Synced from ADO every 5 min · workarounds auto-pushed to linked Zendesk tickets</div>
+      <div class="header-sub">Synced from ADO every 5 min · V2: auto-push workaround updates to linked Zendesk followers</div>
     </div>
     <span class="demo-badge">Demo</span>
   </header>
@@ -366,7 +359,7 @@
     <div class="stat">
       <div class="stat-label">Linked Zendesk tickets</div>
       <div class="stat-value">87</div>
-      <div class="stat-sub">All followers auto-notified</div>
+      <div class="stat-sub">V2: could auto-notify on R&D update</div>
     </div>
   </section>
 
@@ -563,9 +556,7 @@ function renderBug(b) {
     t.startsWith('ZD-') ? `<a href="#" onclick="event.preventDefault()">${t}</a>` : t
   ).join(' · ');
 
-  const notifyHtml = b.notified
-    ? `<div class="notify-status">✓ Followers auto-notified · ${b.notifiedDate}</div>`
-    : `<div class="notify-status pending" onclick="event.stopPropagation(); markNotified('${b.id}')">⚠ ${b.pendingCount} followers waiting · push update</div>`;
+  const notifyHtml = `<div class="notify-status">✦ V2: would auto-notify ${b.linkedCount} linked followers when R&D updates this bug</div>`;
 
   const workaroundHtml = b.workaround
     ? `<div class="workaround"><strong>Workaround:</strong> ${b.workaround}</div>`
@@ -645,19 +636,6 @@ document.querySelectorAll('.chip').forEach(c => {
 });
 
 search.addEventListener('input', render);
-
-function markNotified(id) {
-  const bug = bugs.find(b => b.id === id);
-  if (bug) {
-    bug.notified = true;
-    bug.notifiedDate = 'just now';
-    render();
-    // Re-open the same bug after re-render
-    const row = bugList.querySelector(`[data-id="${id}"]`);
-    if (row) row.classList.add('open');
-  }
-}
-window.markNotified = markNotified;
 
 render();
 </script>
