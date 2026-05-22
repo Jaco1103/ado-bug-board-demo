@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Known Bug Board — T2 Range</title>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --panel: #232323;
+    --panel-2: #2a2a2a;
+    --panel-3: #1f1f1f;
+    --border: #333;
+    --text: #e8e8e8;
+    --text-dim: #8a8a8a;
+    --text-mid: #b8b8b8;
+    --accent: #d97757;
+    --accent-dim: #5a3a2c;
+    --success: #4a9d6a;
+    --success-dim: #1f3a2a;
+    --warn: #d4a548;
+    --warn-dim: #3a2f1a;
+    --info: #5b8db8;
+    --info-dim: #1f2f3f;
+    --danger: #d76f6f;
+    --danger-dim: #3a2222;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+  .app { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .header-title { font-size: 22px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+  .demo-badge {
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .stat-value { font-size: 22px; font-weight: 600; }
+  .stat-value.danger { color: var(--danger); }
+  .stat-value.warn { color: var(--warn); }
+  .stat-value.success { color: var(--success); }
+  .stat-value.accent { color: var(--accent); }
+  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-input {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 240px;
+    outline: none;
+    font-family: inherit;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .chip {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+  .chip.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Bug list */
+  .bug-list {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .bug-row {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .bug-row:last-child { border-bottom: none; }
+  .bug-row:hover { background: var(--panel-3); }
+  .bug-row.open { background: var(--panel-3); }
+
+  .bug-summary {
+    display: grid;
+    grid-template-columns: 90px 1fr auto auto auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .bug-id {
+    font-family: ui-monospace, monospace;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .bug-title {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .bug-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .bug-meta strong { color: var(--text-mid); font-weight: 500; }
+
+  .badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .badge-active { background: var(--warn-dim); color: var(--warn); }
+  .badge-workaround { background: var(--info-dim); color: var(--info); }
+  .badge-fixed { background: var(--success-dim); color: var(--success); }
+  .badge-investigating { background: var(--danger-dim); color: var(--danger); }
+
+  .chevron {
+    width: 16px; height: 16px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .bug-row.open .chevron { transform: rotate(90deg); }
+
+  /* Expanded view */
+  .bug-detail {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .bug-row.open .bug-detail { display: block; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+  }
+  .detail-section { }
+  .detail-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .rd-notes {
+    background: var(--panel-3);
+    border-left: 3px solid var(--info);
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--text-mid);
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .rd-notes-meta {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .workaround {
+    background: var(--success-dim);
+    border-left: 3px solid var(--success);
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #d8f0dc;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .no-workaround {
+    background: var(--danger-dim);
+    border-left: 3px solid var(--danger);
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #f0d8d8;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .ticket-list {
+    background: var(--panel-3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-family: ui-monospace, monospace;
+    line-height: 1.7;
+    color: var(--text-mid);
+  }
+  .ticket-list a {
+    color: var(--info);
+    text-decoration: none;
+  }
+  .ticket-list a:hover { text-decoration: underline; }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #2a2a2a;
+    font-size: 12px;
+  }
+  .meta-row:last-child { border-bottom: none; }
+  .meta-row-label { color: var(--text-dim); }
+  .meta-row-value { color: var(--text); font-weight: 500; }
+
+  .notify-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--success-dim);
+    border: 1px solid var(--success);
+    color: var(--success);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .notify-status.pending {
+    background: var(--warn-dim);
+    border-color: var(--warn);
+    color: var(--warn);
+    cursor: pointer;
+  }
+  .notify-status.pending:hover { background: #4a3a1a; }
+
+  .action-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--panel-2);
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn:hover { color: var(--text); border-color: var(--accent); }
+  .btn-primary {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent); color: white; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    background: var(--panel-2);
+    color: var(--text-dim);
+    margin-right: 4px;
+  }
+
+  .source-line {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 16px;
+    text-align: center;
+    padding: 10px;
+    border-top: 1px dashed var(--border);
+  }
+
+  @media (max-width: 900px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .bug-summary { grid-template-columns: 1fr; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div>
+      <div class="header-title">Known Bug Board · T2 Range</div>
+      <div class="header-sub">Synced from ADO every 5 min · workarounds auto-pushed to linked Zendesk tickets</div>
+    </div>
+    <span class="demo-badge">Demo</span>
+  </header>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-label">Active</div>
+      <div class="stat-value warn">7</div>
+      <div class="stat-sub">Open R&D items</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Workaround available</div>
+      <div class="stat-value success">5</div>
+      <div class="stat-sub">Can unblock customers now</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Fixed · next release</div>
+      <div class="stat-value accent">3</div>
+      <div class="stat-sub">Shipping in 8.1.1</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Linked Zendesk tickets</div>
+      <div class="stat-value">87</div>
+      <div class="stat-sub">All followers auto-notified</div>
+    </div>
+  </section>
+
+  <div class="filters">
+    <input type="text" class="search-input" placeholder="Search by ID, symptom, error code..." id="search">
+    <div class="chip active" data-filter="all">All</div>
+    <div class="chip" data-filter="active">Active</div>
+    <div class="chip" data-filter="workaround">Has workaround</div>
+    <div class="chip" data-filter="fixed">Fixed</div>
+    <div class="chip" data-filter="camera">Camera</div>
+    <div class="chip" data-filter="radar">Radar</div>
+    <div class="chip" data-filter="tps">TPS</div>
+  </div>
+
+  <div class="bug-list" id="bugList"></div>
+
+  <div class="source-line">
+    Source of truth: Azure DevOps · this view auto-syncs and pushes workaround changes to all linked Zendesk followers.
+  </div>
+</div>
+
+<script>
+const bugs = [
+  {
+    id: 'ADO-7741',
+    title: 'Radar FW 3.2.1 — calibration drift on Range Performance SKUs',
+    status: 'workaround',
+    statusLabel: 'Workaround',
+    category: ['radar'],
+    age: '6 days old',
+    updated: 'R&D updated 2 days ago',
+    linkedCount: 12,
+    rdNotes: 'Confirmed regression in 3.2.1 radar driver. Calibration drift escalates >0.05 within 10-15 min of FW load on Range Performance SKUs only (Pro/Lite unaffected). Root cause: timing-loop change in 3.2.1 interacts with the older PCB revision on this SKU. Fix queued for 3.2.2, ETA next sprint.',
+    rdAuthor: 'Lukas (R&D Radar)',
+    rdDate: '2026-05-20',
+    workaround: 'Roll back to FW 3.2.0 via host app → recalibrate → confirm drift returns within spec (<0.05). Customer impact: ~3 min of session disruption.',
+    fixVersion: 'FW 3.2.2 (next sprint)',
+    tickets: ['ZD-184722', 'ZD-184388', 'ZD-184201', 'ZD-184100', 'ZD-183992', 'ZD-183871', 'ZD-183744', 'ZD-183620', 'ZD-183502', 'ZD-183388', 'ZD-183201', 'ZD-183100'],
+    notified: true,
+    notifiedDate: '2 days ago',
+    firstSeen: '2026-05-14'
+  },
+  {
+    id: 'ADO-7732',
+    title: 'TPS handshake fails when host app + TPS minor versions differ',
+    status: 'active',
+    statusLabel: 'Investigating',
+    category: ['tps'],
+    age: '4 days old',
+    updated: 'R&D updated 6h ago',
+    linkedCount: 4,
+    rdNotes: 'When TPS 2.4.7 connects to host app 8.0.x, the version handshake errors with TPS-409. Issue did NOT exist with TPS 2.4.6. Likely a new validation step introduced for 8.1.x compatibility. Investigating whether to relax validation or push host upgrade.',
+    rdAuthor: 'Anna (R&D TPS)',
+    rdDate: '2026-05-22',
+    workaround: null,
+    fixVersion: 'TBD · R&D investigating',
+    tickets: ['ZD-184901', 'ZD-184822', 'ZD-184780', 'ZD-184711'],
+    notified: false,
+    pendingCount: 4,
+    firstSeen: '2026-05-18'
+  },
+  {
+    id: 'ADO-7702',
+    title: 'Camera lag cold-start — USB controller power management',
+    status: 'fixed',
+    statusLabel: 'Fixed in 8.1.0',
+    category: ['camera'],
+    age: '3 weeks old',
+    updated: 'Fix shipped 2 weeks ago',
+    linkedCount: 28,
+    rdNotes: 'First 8 sec of session shows 200-400ms camera latency on Windows installs where USB controller selective suspend is enabled. Permanent fix: host app now sets USB power profile on launch.',
+    rdAuthor: 'Mads (R&D Camera)',
+    rdDate: '2026-05-05',
+    workaround: 'Pre-8.1.0: disable USB controller selective suspend in registry. Vault doc: Hardware/usb-power-tweak.md',
+    fixVersion: 'Host app 8.1.0',
+    tickets: ['ZD-181004', 'ZD-181122', 'ZD-181233', 'ZD-181344', '... +24 more'],
+    notified: true,
+    notifiedDate: '2 weeks ago',
+    firstSeen: '2026-04-22'
+  },
+  {
+    id: 'ADO-7689',
+    title: 'Screen ghosting on Range Performance — display driver timeout',
+    status: 'active',
+    statusLabel: 'Active',
+    category: ['hardware'],
+    age: '5 days old',
+    updated: 'R&D updated yesterday',
+    linkedCount: 6,
+    rdNotes: 'Ghosting appears after 45+ min of continuous sessions, only on Range Performance with display panel rev B. Driver timeout under sustained load. Identified the leak; building fix.',
+    rdAuthor: 'Tom (R&D Display)',
+    rdDate: '2026-05-21',
+    workaround: 'Restart host app every 40 min during heavy use — clears the driver state. Not a great UX but unblocks paying customers.',
+    fixVersion: 'Host app 8.1.1 (in review)',
+    tickets: ['ZD-184555', 'ZD-184502', 'ZD-184488', 'ZD-184401', 'ZD-184388', 'ZD-184201'],
+    notified: true,
+    notifiedDate: '1 day ago',
+    firstSeen: '2026-05-17'
+  },
+  {
+    id: 'ADO-7677',
+    title: 'Connectivity drop after host app sleep > 4h',
+    status: 'workaround',
+    statusLabel: 'Workaround',
+    category: ['connectivity'],
+    age: '8 days old',
+    updated: 'R&D updated 3 days ago',
+    linkedCount: 9,
+    rdNotes: 'Keep-alive socket times out after the host machine wakes from extended sleep. Host app does not auto-reconnect. Fix involves re-implementing the reconnect handler.',
+    rdAuthor: 'Anna (R&D TPS)',
+    rdDate: '2026-05-19',
+    workaround: 'Customer restarts the host app — connection re-establishes within 5 sec.',
+    fixVersion: 'Host app 8.1.1',
+    tickets: ['ZD-184111', 'ZD-184088', 'ZD-184012', 'ZD-183988', 'ZD-183901', 'ZD-183877', 'ZD-183822', 'ZD-183811', 'ZD-183744'],
+    notified: true,
+    notifiedDate: '3 days ago',
+    firstSeen: '2026-05-14'
+  },
+  {
+    id: 'ADO-7665',
+    title: 'TPS-411 spurious error when ball detection runs in low-light',
+    status: 'active',
+    statusLabel: 'Investigating',
+    category: ['tps'],
+    age: '10 days old',
+    updated: 'R&D updated 4 days ago',
+    linkedCount: 3,
+    rdNotes: 'Threshold for ball detection misfires when bay lux <80. Looking at whether to dynamically adjust or surface a user warning. Low priority — only 3 affected sites.',
+    rdAuthor: 'Lukas (R&D Radar)',
+    rdDate: '2026-05-18',
+    workaround: 'Customer-side: ensure bay lighting >100 lux. Help center note linked.',
+    fixVersion: 'TBD',
+    tickets: ['ZD-183500', 'ZD-183422', 'ZD-183388'],
+    notified: true,
+    notifiedDate: '4 days ago',
+    firstSeen: '2026-05-12'
+  },
+  {
+    id: 'ADO-7654',
+    title: 'Host app crash when switching range layouts mid-session',
+    status: 'fixed',
+    statusLabel: 'Fixed in 8.1.0',
+    category: ['app'],
+    age: '4 weeks old',
+    updated: 'Fix shipped 2 weeks ago',
+    linkedCount: 17,
+    rdNotes: 'Layout cache invalidation race. Resolved in 8.1.0 by serializing the swap.',
+    rdAuthor: 'Mads (R&D Camera)',
+    rdDate: '2026-05-05',
+    workaround: 'Pre-8.1.0: finish session before switching layouts.',
+    fixVersion: 'Host app 8.1.0',
+    tickets: ['ZD-180888', 'ZD-180812', 'ZD-180788', '... +14 more'],
+    notified: true,
+    notifiedDate: '2 weeks ago',
+    firstSeen: '2026-04-22'
+  },
+  {
+    id: 'ADO-7641',
+    title: 'Radar drift on Pro SKU after cold boot < 5°C',
+    status: 'workaround',
+    statusLabel: 'Workaround',
+    category: ['radar'],
+    age: '2 weeks old',
+    updated: 'R&D updated 5 days ago',
+    linkedCount: 8,
+    rdNotes: 'Cold-temp radar drift on Pro SKU — warmup compensation insufficient below 5°C ambient. Building extended warmup routine.',
+    rdAuthor: 'Lukas (R&D Radar)',
+    rdDate: '2026-05-17',
+    workaround: 'Allow 5 extra minutes warmup before first session if ambient < 5°C. Auto-calibration kicks in after.',
+    fixVersion: 'FW 3.2.3',
+    tickets: ['ZD-182222', 'ZD-182188', 'ZD-182144', 'ZD-182100', 'ZD-182088', 'ZD-182022', 'ZD-181988', 'ZD-181944'],
+    notified: true,
+    notifiedDate: '5 days ago',
+    firstSeen: '2026-05-08'
+  }
+];
+
+const bugList = document.getElementById('bugList');
+const search = document.getElementById('search');
+let activeFilter = 'all';
+
+function statusBadge(b) {
+  const cls = {
+    active: 'badge-investigating',
+    workaround: 'badge-workaround',
+    fixed: 'badge-fixed'
+  }[b.status] || 'badge-active';
+  return `<span class="badge ${cls}">${b.statusLabel}</span>`;
+}
+
+function renderBug(b) {
+  const ticketsHtml = b.tickets.slice(0, 8).map(t =>
+    t.startsWith('ZD-') ? `<a href="#" onclick="event.preventDefault()">${t}</a>` : t
+  ).join(' · ');
+
+  const notifyHtml = b.notified
+    ? `<div class="notify-status">✓ Followers auto-notified · ${b.notifiedDate}</div>`
+    : `<div class="notify-status pending" onclick="event.stopPropagation(); markNotified('${b.id}')">⚠ ${b.pendingCount} followers waiting · push update</div>`;
+
+  const workaroundHtml = b.workaround
+    ? `<div class="workaround"><strong>Workaround:</strong> ${b.workaround}</div>`
+    : `<div class="no-workaround"><strong>No workaround yet</strong> · R&D actively investigating</div>`;
+
+  return `
+    <div class="bug-row" data-id="${b.id}" data-status="${b.status}" data-category="${b.category.join(' ')}">
+      <div class="bug-summary">
+        <span class="bug-id">${b.id}</span>
+        <span class="bug-title">${b.title}</span>
+        <span class="bug-meta"><strong>${b.linkedCount}</strong> linked</span>
+        <span class="bug-meta">${b.updated}</span>
+        ${statusBadge(b)}
+      </div>
+      <div class="bug-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <div class="detail-label">R&D notes</div>
+            <div class="rd-notes">
+              ${b.rdNotes}
+              <div class="rd-notes-meta">— ${b.rdAuthor} · ${b.rdDate}</div>
+            </div>
+            ${workaroundHtml}
+            <div class="detail-label">Linked Zendesk tickets · ${b.linkedCount}</div>
+            <div class="ticket-list">${ticketsHtml}</div>
+            <div class="action-bar">
+              ${notifyHtml}
+              <button class="btn" onclick="event.stopPropagation()">View in ADO</button>
+              <button class="btn" onclick="event.stopPropagation()">Draft macro reply</button>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Details</div>
+            <div class="meta-row"><span class="meta-row-label">Status</span><span class="meta-row-value">${b.statusLabel}</span></div>
+            <div class="meta-row"><span class="meta-row-label">Fix version</span><span class="meta-row-value">${b.fixVersion}</span></div>
+            <div class="meta-row"><span class="meta-row-label">First seen</span><span class="meta-row-value">${b.firstSeen}</span></div>
+            <div class="meta-row"><span class="meta-row-label">Age</span><span class="meta-row-value">${b.age}</span></div>
+            <div class="meta-row"><span class="meta-row-label">Linked tickets</span><span class="meta-row-value">${b.linkedCount}</span></div>
+            <div class="meta-row"><span class="meta-row-label">Category</span><span class="meta-row-value">${b.category.map(c => `<span class="tag">${c}</span>`).join('')}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  const q = search.value.toLowerCase();
+  const filtered = bugs.filter(b => {
+    if (activeFilter === 'workaround' && b.status !== 'workaround') return false;
+    if (activeFilter === 'active' && b.status !== 'active') return false;
+    if (activeFilter === 'fixed' && b.status !== 'fixed') return false;
+    if (['camera','radar','tps','connectivity','hardware'].includes(activeFilter) && !b.category.includes(activeFilter)) return false;
+    if (q && !(b.id + ' ' + b.title + ' ' + b.rdNotes).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  bugList.innerHTML = filtered.length
+    ? filtered.map(renderBug).join('')
+    : '<div style="padding: 40px; text-align: center; color: var(--text-dim);">No bugs match this filter.</div>';
+
+  bugList.querySelectorAll('.bug-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const wasOpen = row.classList.contains('open');
+      bugList.querySelectorAll('.bug-row.open').forEach(r => r.classList.remove('open'));
+      if (!wasOpen) row.classList.add('open');
+    });
+  });
+}
+
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    activeFilter = c.dataset.filter;
+    render();
+  });
+});
+
+search.addEventListener('input', render);
+
+function markNotified(id) {
+  const bug = bugs.find(b => b.id === id);
+  if (bug) {
+    bug.notified = true;
+    bug.notifiedDate = 'just now';
+    render();
+    // Re-open the same bug after re-render
+    const row = bugList.querySelector(`[data-id="${id}"]`);
+    if (row) row.classList.add('open');
+  }
+}
+window.markNotified = markNotified;
+
+render();
+</script>
+</body>
+</html>
