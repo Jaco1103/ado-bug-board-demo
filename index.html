@@ -341,7 +341,7 @@
 <div class="app">
   <header class="header">
     <div>
-      <div class="header-title">Known Bug Board · T2 Range</div>
+      <div class="header-title">Known Bug Board · T2 Support</div>
       <div class="header-sub">Synced from ADO every 5 min · workarounds auto-pushed to linked Zendesk tickets</div>
     </div>
     <span class="demo-badge">Demo</span>
@@ -361,7 +361,7 @@
     <div class="stat">
       <div class="stat-label">Fixed · next release</div>
       <div class="stat-value accent">3</div>
-      <div class="stat-sub">Shipping in 8.1.1</div>
+      <div class="stat-sub">Shipping in 10.3.2</div>
     </div>
     <div class="stat">
       <div class="stat-label">Linked Zendesk tickets</div>
@@ -376,9 +376,10 @@
     <div class="chip" data-filter="active">Active</div>
     <div class="chip" data-filter="workaround">Has workaround</div>
     <div class="chip" data-filter="fixed">Fixed</div>
-    <div class="chip" data-filter="camera">Camera</div>
-    <div class="chip" data-filter="radar">Radar</div>
     <div class="chip" data-filter="tps">TPS</div>
+    <div class="chip" data-filter="vg">VG</div>
+    <div class="chip" data-filter="app">App</div>
+    <div class="chip" data-filter="tm4">TM4</div>
   </div>
 
   <div class="bug-list" id="bugList"></div>
@@ -392,155 +393,155 @@
 const bugs = [
   {
     id: 'ADO-7741',
-    title: 'Radar FW 3.2.1 — calibration drift on Range Performance SKUs',
+    title: 'The Fairway | TM4 not connecting in TPS version 10.3',
     status: 'workaround',
     statusLabel: 'Workaround',
-    category: ['radar'],
-    age: '6 days old',
+    category: ['tm4', 'tps'],
+    age: '8 days old',
     updated: 'R&D updated 2 days ago',
-    linkedCount: 12,
-    rdNotes: 'Confirmed regression in 3.2.1 radar driver. Calibration drift escalates >0.05 within 10-15 min of FW load on Range Performance SKUs only (Pro/Lite unaffected). Root cause: timing-loop change in 3.2.1 interacts with the older PCB revision on this SKU. Fix queued for 3.2.2, ETA next sprint.',
-    rdAuthor: 'Lukas (R&D Radar)',
+    linkedCount: 14,
+    rdNotes: 'TPS 10.3 introduced a new radar comms handshake. TM4 units running firmware older than 4.7.5 don\'t implement it — handshake fails on connect. Affects The Fairway installations specifically (older TM4 fleet). Updating TM4 firmware resolves it cleanly.',
+    rdAuthor: 'R&D · Radar Team',
     rdDate: '2026-05-20',
-    workaround: 'Roll back to FW 3.2.0 via host app → recalibrate → confirm drift returns within spec (<0.05). Customer impact: ~3 min of session disruption.',
-    fixVersion: 'FW 3.2.2 (next sprint)',
-    tickets: ['ZD-184722', 'ZD-184388', 'ZD-184201', 'ZD-184100', 'ZD-183992', 'ZD-183871', 'ZD-183744', 'ZD-183620', 'ZD-183502', 'ZD-183388', 'ZD-183201', 'ZD-183100'],
+    workaround: 'Push TM4 firmware update to 4.7.5+ via host app → reconnect. ~5 min downtime per unit.',
+    fixVersion: 'TM4 FW 4.8.2 (auto-rollout in progress)',
+    tickets: ['ZD-184722', 'ZD-184501', 'ZD-184388', 'ZD-184201', 'ZD-184100', 'ZD-183992', 'ZD-183871', 'ZD-183744', 'ZD-183620', 'ZD-183502', 'ZD-183388', 'ZD-183201', 'ZD-183100', 'ZD-183022'],
     notified: true,
     notifiedDate: '2 days ago',
     firstSeen: '2026-05-14'
   },
   {
-    id: 'ADO-7732',
-    title: 'TPS handshake fails when host app + TPS minor versions differ',
-    status: 'active',
-    statusLabel: 'Investigating',
-    category: ['tps'],
-    age: '4 days old',
-    updated: 'R&D updated 6h ago',
-    linkedCount: 4,
-    rdNotes: 'When TPS 2.4.7 connects to host app 8.0.x, the version handshake errors with TPS-409. Issue did NOT exist with TPS 2.4.6. Likely a new validation step introduced for 8.1.x compatibility. Investigating whether to relax validation or push host upgrade.',
-    rdAuthor: 'Anna (R&D TPS)',
-    rdDate: '2026-05-22',
-    workaround: null,
-    fixVersion: 'TBD · R&D investigating',
-    tickets: ['ZD-184901', 'ZD-184822', 'ZD-184780', 'ZD-184711'],
-    notified: false,
-    pendingCount: 4,
-    firstSeen: '2026-05-18'
-  },
-  {
-    id: 'ADO-7702',
-    title: 'Camera lag cold-start — USB controller power management',
+    id: 'ADO-7740',
+    title: 'VG | Defaults to putter on green, TPS 10.3',
     status: 'fixed',
-    statusLabel: 'Fixed in 8.1.0',
-    category: ['camera'],
-    age: '3 weeks old',
-    updated: 'Fix shipped 2 weeks ago',
-    linkedCount: 28,
-    rdNotes: 'First 8 sec of session shows 200-400ms camera latency on Windows installs where USB controller selective suspend is enabled. Permanent fix: host app now sets USB power profile on launch.',
-    rdAuthor: 'Mads (R&D Camera)',
-    rdDate: '2026-05-05',
-    workaround: 'Pre-8.1.0: disable USB controller selective suspend in registry. Vault doc: Hardware/usb-power-tweak.md',
-    fixVersion: 'Host app 8.1.0',
-    tickets: ['ZD-181004', 'ZD-181122', 'ZD-181233', 'ZD-181344', '... +24 more'],
-    notified: true,
-    notifiedDate: '2 weeks ago',
-    firstSeen: '2026-04-22'
-  },
-  {
-    id: 'ADO-7689',
-    title: 'Screen ghosting on Range Performance — display driver timeout',
-    status: 'active',
-    statusLabel: 'Active',
-    category: ['hardware'],
-    age: '5 days old',
-    updated: 'R&D updated yesterday',
-    linkedCount: 6,
-    rdNotes: 'Ghosting appears after 45+ min of continuous sessions, only on Range Performance with display panel rev B. Driver timeout under sustained load. Identified the leak; building fix.',
-    rdAuthor: 'Tom (R&D Display)',
-    rdDate: '2026-05-21',
-    workaround: 'Restart host app every 40 min during heavy use — clears the driver state. Not a great UX but unblocks paying customers.',
-    fixVersion: 'Host app 8.1.1 (in review)',
-    tickets: ['ZD-184555', 'ZD-184502', 'ZD-184488', 'ZD-184401', 'ZD-184388', 'ZD-184201'],
-    notified: true,
-    notifiedDate: '1 day ago',
-    firstSeen: '2026-05-17'
-  },
-  {
-    id: 'ADO-7677',
-    title: 'Connectivity drop after host app sleep > 4h',
-    status: 'workaround',
-    statusLabel: 'Workaround',
-    category: ['connectivity'],
+    statusLabel: 'Fixed in 10.3.2',
+    category: ['vg', 'tps'],
     age: '8 days old',
-    updated: 'R&D updated 3 days ago',
+    updated: 'Fix queued for 10.3.2',
     linkedCount: 9,
-    rdNotes: 'Keep-alive socket times out after the host machine wakes from extended sleep. Host app does not auto-reconnect. Fix involves re-implementing the reconnect handler.',
-    rdAuthor: 'Anna (R&D TPS)',
+    rdNotes: 'Auto-club detection in Virtual Golf incorrectly classifies green proximity in 10.3. The heuristic introduced for new green detection oversamples — putter gets defaulted even mid-fairway. Single-line fix in club-selection logic.',
+    rdAuthor: 'R&D · VG Team',
     rdDate: '2026-05-19',
-    workaround: 'Customer restarts the host app — connection re-establishes within 5 sec.',
-    fixVersion: 'Host app 8.1.1',
-    tickets: ['ZD-184111', 'ZD-184088', 'ZD-184012', 'ZD-183988', 'ZD-183901', 'ZD-183877', 'ZD-183822', 'ZD-183811', 'ZD-183744'],
+    workaround: 'Manually select club each shot until 10.3.2 ships.',
+    fixVersion: 'TPS 10.3.2 (in QA)',
+    tickets: ['ZD-184880', 'ZD-184801', 'ZD-184722', 'ZD-184644', 'ZD-184580', 'ZD-184501', 'ZD-184422', 'ZD-184344', 'ZD-184265'],
     notified: true,
     notifiedDate: '3 days ago',
     firstSeen: '2026-05-14'
   },
   {
-    id: 'ADO-7665',
-    title: 'TPS-411 spurious error when ball detection runs in low-light',
-    status: 'active',
-    statusLabel: 'Investigating',
-    category: ['tps'],
-    age: '10 days old',
-    updated: 'R&D updated 4 days ago',
-    linkedCount: 3,
-    rdNotes: 'Threshold for ball detection misfires when bay lux <80. Looking at whether to dynamically adjust or surface a user warning. Low priority — only 3 affected sites.',
-    rdAuthor: 'Lukas (R&D Radar)',
-    rdDate: '2026-05-18',
-    workaround: 'Customer-side: ensure bay lighting >100 lux. Help center note linked.',
-    fixVersion: 'TBD',
-    tickets: ['ZD-183500', 'ZD-183422', 'ZD-183388'],
-    notified: true,
-    notifiedDate: '4 days ago',
-    firstSeen: '2026-05-12'
-  },
-  {
-    id: 'ADO-7654',
-    title: 'Host app crash when switching range layouts mid-session',
-    status: 'fixed',
-    statusLabel: 'Fixed in 8.1.0',
-    category: ['app'],
-    age: '4 weeks old',
-    updated: 'Fix shipped 2 weeks ago',
-    linkedCount: 17,
-    rdNotes: 'Layout cache invalidation race. Resolved in 8.1.0 by serializing the swap.',
-    rdAuthor: 'Mads (R&D Camera)',
-    rdDate: '2026-05-05',
-    workaround: 'Pre-8.1.0: finish session before switching layouts.',
-    fixVersion: 'Host app 8.1.0',
-    tickets: ['ZD-180888', 'ZD-180812', 'ZD-180788', '... +14 more'],
-    notified: true,
-    notifiedDate: '2 weeks ago',
-    firstSeen: '2026-04-22'
-  },
-  {
-    id: 'ADO-7641',
-    title: 'Radar drift on Pro SKU after cold boot < 5°C',
+    id: 'ADO-7732',
+    title: 'TPS | TPS 10.3, extended screen view goes black',
     status: 'workaround',
     statusLabel: 'Workaround',
-    category: ['radar'],
-    age: '2 weeks old',
+    category: ['tps'],
+    age: '5 days old',
+    updated: 'R&D updated yesterday',
+    linkedCount: 11,
+    rdNotes: 'Extended screen mode triggers GPU context loss on Intel iGPU drivers older than 30.0.101.4xxx when host runs 10.3. Reproducible on Intel UHD 630 / 730. Render path needs to switch on detected GPU.',
+    rdAuthor: 'R&D · TPS Team',
+    rdDate: '2026-05-21',
+    workaround: 'Mirror displays instead of extend, OR update Intel display driver to latest from intel.com (host installer doesn\'t bundle the right version yet).',
+    fixVersion: 'TPS 10.3.2',
+    tickets: ['ZD-184788', 'ZD-184722', 'ZD-184644', 'ZD-184580', 'ZD-184501', 'ZD-184422', 'ZD-184344', 'ZD-184265', 'ZD-184188', 'ZD-184100', 'ZD-184022'],
+    notified: true,
+    notifiedDate: '1 day ago',
+    firstSeen: '2026-05-17'
+  },
+  {
+    id: 'ADO-7728',
+    title: 'B&P | Swing Zone payout issues',
+    status: 'active',
+    statusLabel: 'Investigating',
+    category: ['b&p', 'app'],
+    age: '4 days old',
+    updated: 'R&D updated 4h ago',
+    linkedCount: 6,
+    rdNotes: 'Swing Zone game payout calc rounds before applying multiplier — undervalues partial-score wins. High priority, finance flagged after a customer escalation. Hotfix in build.',
+    rdAuthor: 'R&D · B&P Team',
+    rdDate: '2026-05-22',
+    workaround: null,
+    fixVersion: 'TBD · hotfix in build',
+    tickets: ['ZD-184901', 'ZD-184822', 'ZD-184780', 'ZD-184711', 'ZD-184644', 'ZD-184580'],
+    notified: false,
+    pendingCount: 6,
+    firstSeen: '2026-05-18'
+  },
+  {
+    id: 'ADO-7719',
+    title: '"Sign in with Apple" creates mask over real email',
+    status: 'workaround',
+    statusLabel: 'Workaround',
+    category: ['app', 'auth'],
+    age: '9 days old',
     updated: 'R&D updated 5 days ago',
     linkedCount: 8,
-    rdNotes: 'Cold-temp radar drift on Pro SKU — warmup compensation insufficient below 5°C ambient. Building extended warmup routine.',
-    rdAuthor: 'Lukas (R&D Radar)',
+    rdNotes: 'Apple privacy relay generates a @privaterelay.appleid.com mask on signup. Customer ticket comes in from their real email but account is registered under the relay address — account lookup fails. Needs a secondary lookup path by SN or Apple ID.',
+    rdAuthor: 'R&D · App Team',
     rdDate: '2026-05-17',
-    workaround: 'Allow 5 extra minutes warmup before first session if ambient < 5°C. Auto-calibration kicks in after.',
-    fixVersion: 'FW 3.2.3',
-    tickets: ['ZD-182222', 'ZD-182188', 'ZD-182144', 'ZD-182100', 'ZD-182088', 'ZD-182022', 'ZD-181988', 'ZD-181944'],
+    workaround: 'Match customer to account via TM serial-number lookup. Vault doc: Auth/apple-privacy-relay.md',
+    fixVersion: 'TPS 10.3.2 (adds SN-based fallback)',
+    tickets: ['ZD-184500', 'ZD-184422', 'ZD-184344', 'ZD-184265', 'ZD-184188', 'ZD-184100', 'ZD-184022', 'ZD-183944'],
     notified: true,
     notifiedDate: '5 days ago',
-    firstSeen: '2026-05-08'
+    firstSeen: '2026-05-13'
+  },
+  {
+    id: 'ADO-7711',
+    title: 'Lack of decimal on the web portal for CTP',
+    status: 'fixed',
+    statusLabel: 'Fixed in 10.3.2',
+    category: ['web'],
+    age: '11 days old',
+    updated: 'Fix queued for 10.3.2',
+    linkedCount: 5,
+    rdNotes: 'Closest-to-the-pin display in web portal rounds to whole inches. Players showing as tied when they\'re actually inches apart. Backend data has decimals — display layer only. One-line fix.',
+    rdAuthor: 'R&D · Web Team',
+    rdDate: '2026-05-15',
+    workaround: 'Use the host app standings view (shows full decimal).',
+    fixVersion: 'Web portal v3.4.1 (rolls with 10.3.2)',
+    tickets: ['ZD-184011', 'ZD-183988', 'ZD-183944', 'ZD-183877', 'ZD-183822'],
+    notified: true,
+    notifiedDate: '1 week ago',
+    firstSeen: '2026-05-11'
+  },
+  {
+    id: 'ADO-7705',
+    title: 'No tracking on Short Wedges/Chip shots in VG outdoors',
+    status: 'active',
+    statusLabel: 'Active',
+    category: ['vg', 'tm4'],
+    age: '12 days old',
+    updated: 'R&D updated 6 days ago',
+    linkedCount: 12,
+    rdNotes: 'Outdoor radar config has a minimum velocity threshold (~18 mph) to filter wind and ball-marker false positives. Wedge/chip shots <30 yards often fall below it. Investigating whether to lower threshold with smarter filtering rules.',
+    rdAuthor: 'R&D · VG Team',
+    rdDate: '2026-05-16',
+    workaround: 'Customer-side: practice short game indoors. Not viable for outdoor-only sites — flag this in your reply.',
+    fixVersion: 'TBD',
+    tickets: ['ZD-183722', 'ZD-183644', 'ZD-183580', 'ZD-183501', 'ZD-183422', 'ZD-183344', 'ZD-183265', 'ZD-183188', 'ZD-183100', 'ZD-183022', 'ZD-182944', 'ZD-182888'],
+    notified: true,
+    notifiedDate: '6 days ago',
+    firstSeen: '2026-05-10'
+  },
+  {
+    id: 'ADO-7698',
+    title: 'TMiO Firmware error (VMS Pop Up message)',
+    status: 'workaround',
+    statusLabel: 'Workaround',
+    category: ['tmio', 'hardware'],
+    age: '13 days old',
+    updated: 'R&D updated 4 days ago',
+    linkedCount: 7,
+    rdNotes: 'TMiO firmware mismatch with VMS service version surfaces a popup the customer cannot dismiss. Re-flashing TMiO firmware via host app clears it. Long-term fix bundles a firmware version check on host launch.',
+    rdAuthor: 'R&D · Hardware Team',
+    rdDate: '2026-05-18',
+    workaround: 'Re-flash TMiO firmware via host app → confirms VMS handshake. ~2 min.',
+    fixVersion: 'TMiO FW 2.4.1 (rolling out)',
+    tickets: ['ZD-183188', 'ZD-183100', 'ZD-183022', 'ZD-182944', 'ZD-182888', 'ZD-182801', 'ZD-182722'],
+    notified: true,
+    notifiedDate: '4 days ago',
+    firstSeen: '2026-05-09'
   }
 ];
 
@@ -617,7 +618,7 @@ function render() {
     if (activeFilter === 'workaround' && b.status !== 'workaround') return false;
     if (activeFilter === 'active' && b.status !== 'active') return false;
     if (activeFilter === 'fixed' && b.status !== 'fixed') return false;
-    if (['camera','radar','tps','connectivity','hardware'].includes(activeFilter) && !b.category.includes(activeFilter)) return false;
+    if (['tps','vg','app','tm4','tmio','b&p','web','auth','hardware'].includes(activeFilter) && !b.category.includes(activeFilter)) return false;
     if (q && !(b.id + ' ' + b.title + ' ' + b.rdNotes).toLowerCase().includes(q)) return false;
     return true;
   });
